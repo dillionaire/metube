@@ -1,499 +1,400 @@
-<nav class="navbar navbar-expand-md navbar-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="assets/icons/android-chrome-192x192.png" alt="MeTube Logo" height="32" class="me-2">
-      MeTube
-    </a>
-    <div class="download-metrics">
+<header class="mt-header">
+  <div class="mt-header-left">
+    <img src="assets/icons/android-chrome-192x192.png" alt="Supremium" height="28" class="mt-logo">
+    <span class="mt-brand">Supremium</span>
+  </div>
+  <div class="mt-header-right">
+    <div class="mt-metrics">
       @if (activeDownloads > 0) {
-        <div class="metric">
-          <fa-icon [icon]="faDownload" class="text-primary" />
-          <span>{{activeDownloads}} downloading</span>
-        </div>
+        <span class="mt-pill mt-pill-active">
+          <fa-icon [icon]="faDownload" /> {{activeDownloads}} active
+        </span>
       }
       @if (queuedDownloads > 0) {
-        <div class="metric">
-          <fa-icon [icon]="faClock" class="text-warning" />
-          <span>{{queuedDownloads}} queued</span>
-        </div>
+        <span class="mt-pill mt-pill-queued">
+          <fa-icon [icon]="faClock" /> {{queuedDownloads}} queued
+        </span>
       }
       @if (completedDownloads > 0) {
-        <div class="metric">
-          <fa-icon [icon]="faCheck" class="text-success" />
-          <span>{{completedDownloads}} completed</span>
-        </div>
+        <span class="mt-pill mt-pill-done">
+          <fa-icon [icon]="faCheck" /> {{completedDownloads}} done
+        </span>
       }
       @if (failedDownloads > 0) {
-        <div class="metric">
-          <fa-icon [icon]="faTimesCircle" class="text-danger" />
-          <span>{{failedDownloads}} failed</span>
-        </div>
+        <span class="mt-pill mt-pill-error">
+          <fa-icon [icon]="faTimesCircle" /> {{failedDownloads}} failed
+        </span>
       }
       @if ((totalSpeed | speed) !== '') {
-        <div class="metric">
-          <fa-icon [icon]="faTachometerAlt" class="text-info" />
-          <span>{{totalSpeed | speed }}</span>
-        </div>
+        <span class="mt-pill mt-pill-speed">
+          <fa-icon [icon]="faTachometerAlt" /> {{totalSpeed | speed}}
+        </span>
       }
     </div>
-    <!--
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsDefault" aria-controls="navbarsDefault" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarsDefault">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
-    </div>
-    -->
-    <div class="navbar-nav ms-auto">
-      <div class="nav-item dropdown">
-        <button class="btn btn-link nav-link py-2 px-0 px-sm-2 dropdown-toggle d-flex align-items-center"
-          id="theme-select"
-          type="button"
-          aria-expanded="false"
-          data-bs-toggle="dropdown"
-          data-bs-display="static">
-          @if(activeTheme){
+    <div class="mt-theme-toggle">
+      <button class="mt-theme-btn"
+        type="button"
+        data-bs-toggle="dropdown"
+        data-bs-display="static"
+        aria-expanded="false">
+        @if (activeTheme) {
           <fa-icon [icon]="activeTheme.icon" />
-          }
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end position-absolute" aria-labelledby="theme-select">
-          @for (theme of themes; track theme) {
-            <li>
-              <button type="button" class="dropdown-item d-flex align-items-center"
+        }
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end mt-dropdown">
+        @for (theme of themes; track theme) {
+          <li>
+            <button type="button" class="dropdown-item mt-dropdown-item"
               [class.active]="activeTheme === theme"
               (click)="themeChanged(theme)">
-                <span class="me-2 opacity-50">
-                  <fa-icon [icon]="theme.icon" />
-                </span>
-                {{ theme.displayName }}
-                <span class="ms-auto"
-                [class.d-none]="activeTheme !== theme">
-                <fa-icon [icon]="faCheck" />
-                </span>
-              </button>
-            </li>
-          }
-        </ul>
-      </div>
+              <fa-icon [icon]="theme.icon" class="me-2 opacity-50" />
+              {{ theme.displayName }}
+              @if (activeTheme === theme) {
+                <fa-icon [icon]="faCheck" class="ms-auto" />
+              }
+            </button>
+          </li>
+        }
+      </ul>
     </div>
   </div>
-</nav>
+</header>
 
-<main role="main" class="container container-xl">
+<main role="main" [class.mt-hero-mode]="!hasDownloads" [class.mt-queue-mode]="hasDownloads">
   <form #f="ngForm">
-    <div class="container add-url-box">
-      <!-- Main URL Input with Download Button -->
-      <div class="row mb-4">
-        <div class="col">
-          <div class="input-group input-group-lg shadow-sm">
-            <input type="text"
-              autocomplete="off"
-              spellcheck="false"
-              class="form-control form-control-lg"
-              placeholder="Enter video, channel, or playlist URL"
-              name="addUrl"
-              [(ngModel)]="addUrl"
-              [disabled]="addInProgress || downloads.loading">
-            <button class="btn btn-primary btn-lg px-4"
-              type="submit"
-              (click)="addDownload()"
-              [disabled]="addInProgress || downloads.loading">
-              @if (addInProgress) {
-                <span class="spinner-border spinner-border-sm" role="status" id="add-spinner"></span>
+    <section class="mt-input-hero">
+      <div class="mt-search-bar">
+        <input type="text"
+          class="mt-input"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Enter video, channel, or playlist URL"
+          name="addUrl"
+          [(ngModel)]="addUrl"
+          [disabled]="addInProgress || downloads.loading">
+        <button class="mt-download-btn"
+          type="submit"
+          (click)="addDownload()"
+          [disabled]="addInProgress || downloads.loading">
+          @if (addInProgress) {
+            <span class="spinner-border spinner-border-sm me-1" role="status" id="add-spinner"></span>
+          }
+          {{ addInProgress ? "Adding..." : "Download" }}
+        </button>
+      </div>
+
+      <div class="mt-options-row">
+        <div class="mt-option-group">
+          <label class="mt-option-label">Quality</label>
+          <select class="mt-select"
+            name="quality"
+            [(ngModel)]="quality"
+            (change)="qualityChanged()"
+            [disabled]="addInProgress || downloads.loading">
+            @for (q of qualities; track q) {
+              <option [ngValue]="q.id">{{ q.text }}</option>
+            }
+          </select>
+        </div>
+        <div class="mt-option-group">
+          <label class="mt-option-label">Format</label>
+          <select class="mt-select"
+            name="format"
+            [(ngModel)]="format"
+            (change)="formatChanged()"
+            [disabled]="addInProgress || downloads.loading">
+            @for (f of formats; track f) {
+              <option [ngValue]="f.id">{{ f.text }}</option>
+            }
+          </select>
+        </div>
+        <button type="button" class="mt-advanced-toggle" (click)="toggleAdvanced()">
+          {{ isAdvancedOpen ? "Less options" : "More options" }}
+        </button>
+      </div>
+
+      <div class="mt-advanced-panel" [ngbCollapse]="!isAdvancedOpen">
+        <div class="mt-advanced-card">
+          <div class="mt-advanced-grid">
+            <div class="mt-advanced-field">
+              <label class="mt-option-label">Auto Start</label>
+              <select class="mt-select"
+                name="autoStart"
+                [(ngModel)]="autoStart"
+                (change)="autoStartChanged()"
+                [disabled]="addInProgress || downloads.loading"
+                ngbTooltip="Automatically start downloads when added">
+                <option [ngValue]="true">Yes</option>
+                <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="mt-advanced-field">
+              <label class="mt-option-label">Download Folder</label>
+              @if (customDirs$ | async; as customDirs) {
+                <ng-select [items]="customDirs"
+                  placeholder="Default"
+                  [addTag]="allowCustomDir.bind(this)"
+                  addTagText="Create directory"
+                  [(ngModel)]="folder"
+                  [disabled]="addInProgress || downloads.loading"
+                  [virtualScroll]="true"
+                  [clearable]="true"
+                  [loading]="downloads.loading"
+                  [searchable]="true"
+                  [closeOnSelect]="true"
+                  ngbTooltip="Choose where to save downloads. Type to create a new folder." />
               }
-              {{ addInProgress ? "Adding..." : "Download" }}
+            </div>
+            <div class="mt-advanced-field">
+              <label class="mt-option-label">Custom Name Prefix</label>
+              <input type="text"
+                class="mt-select"
+                placeholder="Default"
+                name="customNamePrefix"
+                [(ngModel)]="customNamePrefix"
+                [disabled]="addInProgress || downloads.loading"
+                ngbTooltip="Add a prefix to downloaded filenames">
+            </div>
+            <div class="mt-advanced-field">
+              <label class="mt-option-label">Items Limit</label>
+              <input type="number"
+                min="0"
+                class="mt-select"
+                placeholder="Default"
+                name="playlistItemLimit"
+                (keydown)="isNumber($event)"
+                [(ngModel)]="playlistItemLimit"
+                [disabled]="addInProgress || downloads.loading"
+                ngbTooltip="Maximum number of items to download from a playlist or channel (0 = no limit)">
+            </div>
+          </div>
+          <div class="mt-advanced-row">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkbox-split-chapters"
+                name="splitByChapters" [(ngModel)]="splitByChapters" (change)="splitByChaptersChanged()"
+                [disabled]="addInProgress || downloads.loading"
+                ngbTooltip="Split video into separate files by chapters">
+              <label class="form-check-label" for="checkbox-split-chapters">Split by chapters</label>
+            </div>
+            @if (splitByChapters) {
+              <div class="mt-advanced-field" style="flex:1">
+                <label class="mt-option-label">Template</label>
+                <input type="text" class="mt-select" name="chapterTemplate" [(ngModel)]="chapterTemplate"
+                  (change)="chapterTemplateChanged()" [disabled]="addInProgress || downloads.loading"
+                  ngbTooltip="Output template for chapter files">
+              </div>
+            }
+          </div>
+          <hr class="mt-divider">
+          <div class="mt-advanced-actions">
+            <button type="button" class="mt-ghost-btn" (click)="openBatchImportModal()">
+              <fa-icon [icon]="faFileImport" class="me-1" /> Import URLs
+            </button>
+            <button type="button" class="mt-ghost-btn" (click)="exportBatchUrls('all')">
+              <fa-icon [icon]="faFileExport" class="me-1" /> Export URLs
+            </button>
+            <button type="button" class="mt-ghost-btn" (click)="copyBatchUrls('all')">
+              <fa-icon [icon]="faCopy" class="me-1" /> Copy URLs
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Options Row -->
-      <div class="row mb-3 g-3">
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text">Quality</span>
-            <select class="form-select"
-              name="quality"
-              [(ngModel)]="quality"
-              (change)="qualityChanged()"
-              [disabled]="addInProgress || downloads.loading">
-              @for (q of qualities; track q) {
-                <option [ngValue]="q.id">{{ q.text }}</option>
-              }
-            </select>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text">Format</span>
-            <select class="form-select"
-              name="format"
-              [(ngModel)]="format"
-              (change)="formatChanged()"
-              [disabled]="addInProgress || downloads.loading">
-              @for (f of formats; track f) {
-                <option [ngValue]="f.id">{{ f.text }}</option>
-              }
-            </select>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <button type="button"
-            class="btn btn-outline-secondary w-100 h-100"
-            (click)="toggleAdvanced()">
-            Advanced Options
-          </button>
-        </div>
-      </div>
-
-      <!-- Advanced Options Panel -->
-      <div class="row">
-        <div class="col-12">
-          <div class="collapse show" id="advancedOptions" [ngbCollapse]="!isAdvancedOpen">
-            <div class="card card-body">
-              <!-- Advanced Settings -->
-              <div class="row g-3 mb-2">
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text">Auto Start</span>
-                    <select class="form-select"
-                      name="autoStart"
-                      [(ngModel)]="autoStart"
-                      (change)="autoStartChanged()"
-                      [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Automatically start downloads when added">
-                      <option [ngValue]="true">Yes</option>
-                      <option [ngValue]="false">No</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text">Download Folder</span>
-                    @if (customDirs$ | async; as customDirs) {
-                    <ng-select [items]="customDirs"
-                      placeholder="Default"
-                      [addTag]="allowCustomDir.bind(this)"
-                      addTagText="Create directory"
-                      bindLabel="folder"
-                      [(ngModel)]="folder"
-                      [disabled]="addInProgress || downloads.loading"
-                      [virtualScroll]="true"
-                      [clearable]="true"
-                      [loading]="downloads.loading"
-                      [searchable]="true"
-                      [closeOnSelect]="true"
-                      ngbTooltip="Choose where to save downloads. Type to create a new folder." />
-                  }
-                  </div>
-
-                </div>
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text">Custom Name Prefix</span>
-                    <input type="text"
-                      class="form-control"
-                      placeholder="Default"
-                      name="customNamePrefix"
-                      [(ngModel)]="customNamePrefix"
-                      [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Add a prefix to downloaded filenames">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text">Items Limit</span>
-                    <input type="number"
-                      min="0"
-                      class="form-control"
-                      placeholder="Default"
-                      name="playlistItemLimit"
-                      (keydown)="isNumber($event)"
-                      [(ngModel)]="playlistItemLimit"
-                      [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Maximum number of items to download from a playlist or channel (0 = no limit)">
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="row g-2 align-items-center">
-                    <div class="col-auto">
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="checkbox-split-chapters"
-                          name="splitByChapters" [(ngModel)]="splitByChapters" (change)="splitByChaptersChanged()"
-                          [disabled]="addInProgress || downloads.loading"
-                          ngbTooltip="Split video into separate files by chapters">
-                        <label class="form-check-label" for="checkbox-split-chapters">Split by chapters</label>
-                      </div>
-                    </div>
-                    @if (splitByChapters) {
-                    <div class="col">
-                      <div class="input-group">
-                        <span class="input-group-text">Template</span>
-                        <input type="text" class="form-control" name="chapterTemplate" [(ngModel)]="chapterTemplate"
-                          (change)="chapterTemplateChanged()" [disabled]="addInProgress || downloads.loading"
-                          ngbTooltip="Output template for chapter files">
-                      </div>
-                    </div>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <!-- Advanced Actions -->
-              <div class="row">
-                <div class="col-12">
-                  <hr class="my-3">
-                  <div class="row g-2">
-                    <div class="col-md-4">
-                      <button type="button"
-                        class="btn btn-secondary w-100"
-                        (click)="openBatchImportModal()">
-                        <fa-icon [icon]="faFileImport" class="me-2" />
-                        Import URLs
-                      </button>
-                    </div>
-                    <div class="col-md-4">
-                      <button type="button"
-                        class="btn btn-secondary w-100"
-                        (click)="exportBatchUrls('all')">
-                        <fa-icon [icon]="faFileExport" class="me-2" />
-                        Export URLs
-                      </button>
-                    </div>
-                    <div class="col-md-4">
-                      <button type="button"
-                        class="btn btn-secondary w-100"
-                        (click)="copyBatchUrls('all')">
-                        <fa-icon [icon]="faCopy" class="me-2" />
-                        Copy URLs
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   </form>
 
   <!-- Batch Import Modal -->
-  <div class="modal fade" tabindex="-1" role="dialog"
-  [class.show]="batchImportModalOpen"
-  [style.display]="batchImportModalOpen ? 'block' : 'none'">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Batch Import URLs</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeBatchImportModal()"></button>
-        </div>
-        <div class="modal-body">
-          <textarea [(ngModel)]="batchImportText" class="form-control" rows="6"
+  <div class="mt-modal-backdrop" [class.mt-modal-open]="batchImportModalOpen" (click)="closeBatchImportModal()">
+    <div class="mt-modal" (click)="$event.stopPropagation()">
+      <div class="mt-modal-header">
+        <h3>Batch Import URLs</h3>
+        <button type="button" class="mt-close-btn" (click)="closeBatchImportModal()">&times;</button>
+      </div>
+      <div class="mt-modal-body">
+        <textarea [(ngModel)]="batchImportText" class="mt-textarea" rows="6"
           placeholder="Paste one video URL per line"></textarea>
-          <div class="mt-2">
-            @if (batchImportStatus) {
-              <small>{{ batchImportStatus }}</small>
-            }
-          </div>
-        </div>
-        <div class="modal-footer">
-          @if (importInProgress) {
-            <button type="button" class="btn btn-danger me-auto" (click)="cancelBatchImport()">
-              Cancel Import
-            </button>
-          }
-          <button type="button" class="btn btn-secondary" (click)="closeBatchImportModal()">Close</button>
-          <button type="button" class="btn btn-primary" (click)="startBatchImport()" [disabled]="importInProgress">
-            Import URLs
-          </button>
-        </div>
+        @if (batchImportStatus) {
+          <p class="mt-batch-status">{{ batchImportStatus }}</p>
+        }
+      </div>
+      <div class="mt-modal-footer">
+        @if (importInProgress) {
+          <button type="button" class="mt-ghost-btn mt-ghost-btn-danger" (click)="cancelBatchImport()">Cancel Import</button>
+        }
+        <button type="button" class="mt-ghost-btn" (click)="closeBatchImportModal()">Close</button>
+        <button type="button" class="mt-download-btn mt-btn-sm" (click)="startBatchImport()" [disabled]="importInProgress">Import</button>
       </div>
     </div>
   </div>
-
 
   @if (downloads.loading) {
-    <div class="alert alert-info" role="alert">
-      Connecting to server...
-    </div>
+    <div class="mt-loading">Connecting to server...</div>
   }
-  <div class="metube-section-header">Downloading</div>
-  <div class="px-2 py-3 border-bottom">
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDelSelected (click)="delSelectedDownloads('queue')"><fa-icon [icon]="faTrashAlt" />&nbsp; Cancel selected</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDownloadSelected (click)="startSelectedDownloads('queue')"><fa-icon [icon]="faDownload" />&nbsp; Download selected</button>
-  </div>
-  <div class="overflow-auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" style="width: 1rem;">
-            <app-master-checkbox #queueMasterCheckboxRef [id]="'queue'" [list]="downloads.queue" (changed)="queueSelectionChanged($event)" />
-          </th>
-          <th scope="col">Video</th>
-          <th scope="col" style="width: 8rem;">Speed</th>
-          <th scope="col" style="width: 7rem;">ETA</th>
-          <th scope="col" style="width: 6rem;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (download of downloads.queue | keyvalue: asIsOrder; track download.value.id) {
-          <tr [class.disabled]='download.value.deleting'>
-            <td>
-              <app-slave-checkbox [id]="download.key" [master]="queueMasterCheckboxRef" [checkable]="download.value" />
-            </td>
-            <td title="{{ download.value.filename }}">
-              <div class="d-flex flex-column flex-sm-row align-items-center row-gap-2 column-gap-3">
-                <div>{{ download.value.title }} </div>
-                <ngb-progressbar height="1.5rem" [showValue]="download.value.status !== 'preparing'" [striped]="download.value.status === 'preparing'" [animated]="download.value.status === 'preparing'" type="success"
-                [value]="download.value.status === 'preparing' ? 100 : download.value.percent" class="download-progressbar" />
-              </div>
-            </td>
-            <td>{{ download.value.speed | speed }}</td>
-            <td>{{ download.value.eta | eta }}</td>
-            <td>
-              <div class="d-flex">
-                @if (download.value.status === 'pending') {
-                  <button type="button" class="btn btn-link" (click)="downloadItemByKey(download.key)"><fa-icon [icon]="faDownload" /></button>
-                }
-                <button type="button" class="btn btn-link" (click)="delDownload('queue', download.key)"><fa-icon [icon]="faTrashAlt" /></button>
-                <a href="{{download.value.url}}" target="_blank" class="btn btn-link"><fa-icon [icon]="faExternalLinkAlt" /></a>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
 
-  <div class="metube-section-header">Completed</div>
-  <div class="px-2 py-3 border-bottom">
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDelSelected (click)="delSelectedDownloads('done')"><fa-icon [icon]="faTrashAlt" />&nbsp; Clear selected</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearCompleted (click)="clearCompletedDownloads()"><fa-icon [icon]="faCheckCircle" />&nbsp; Clear completed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearFailed (click)="clearFailedDownloads()"><fa-icon [icon]="faTimesCircle" />&nbsp; Clear failed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneRetryFailed (click)="retryFailedDownloads()"><fa-icon [icon]="faRedoAlt" />&nbsp; Retry failed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDownloadSelected (click)="downloadSelectedFiles()"><fa-icon [icon]="faDownload" />&nbsp; Download Selected</button>
-  </div>
-  <div class="overflow-auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" style="width: 1rem;">
-            <app-master-checkbox #doneMasterCheckboxRef [id]="'done'" [list]="downloads.done" (changed)="doneSelectionChanged($event)" />
-          </th>
-          <th scope="col">Video</th>
-          <th scope="col">File Size</th>
-          <th scope="col" style="width: 8rem;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (download of downloads.done | keyvalue: asIsOrder; track download.value.id) {
-          <tr [class.disabled]='download.value.deleting'>
-            <td>
-              <app-slave-checkbox [id]="download.key" [master]="doneMasterCheckboxRef" [checkable]="download.value" />
-            </td>
-            <td>
-              <div style="display: inline-block; width: 1.5rem;">
-                @if (download.value.status === 'finished') {
-                  <fa-icon [icon]="faCheckCircle" class="text-success" />
-                }
-                @if (download.value.status === 'error') {
-                  <fa-icon [icon]="faTimesCircle" class="text-danger" />
-                }
-              </div>
-              <span ngbTooltip="{{buildResultItemTooltip(download.value)}}">@if (!!download.value.filename) {
-                <a href="{{buildDownloadLink(download.value)}}" target="_blank">{{ download.value.title }}</a>
+  <!-- Downloading Section — always in DOM for viewChild.required -->
+  <section class="mt-section" [class.mt-section-empty]="!hasQueueDownloads">
+    <div class="mt-section-header">
+      <h2>Downloading</h2>
+      <div class="mt-section-actions">
+        <button type="button" class="mt-ghost-btn" disabled #queueDelSelected (click)="delSelectedDownloads('queue')">
+          <fa-icon [icon]="faTrashAlt" class="me-1" /> Cancel selected
+        </button>
+        <button type="button" class="mt-ghost-btn" disabled #queueDownloadSelected (click)="startSelectedDownloads('queue')">
+          <fa-icon [icon]="faDownload" class="me-1" /> Download selected
+        </button>
+      </div>
+    </div>
+    <div class="mt-section-check">
+      <app-master-checkbox #queueMasterCheckboxRef [id]="'queue'" [list]="downloads.queue" (changed)="queueSelectionChanged($event)" />
+      <span class="mt-check-label">Select all</span>
+    </div>
+    <div class="mt-cards">
+      @for (download of downloads.queue | keyvalue: asIsOrder; track download.value.id) {
+        <div class="mt-card" [class.mt-card-deleting]="download.value.deleting">
+          <div class="mt-card-top">
+            <app-slave-checkbox [id]="download.key" [master]="queueMasterCheckboxRef" [checkable]="download.value" />
+            <span class="mt-card-title" [title]="download.value.filename">{{ download.value.title }}</span>
+            <div class="mt-card-actions">
+              @if (download.value.status === 'pending') {
+                <button type="button" class="mt-icon-btn" (click)="downloadItemByKey(download.key)" title="Start download">
+                  <fa-icon [icon]="faDownload" />
+                </button>
+              }
+              <button type="button" class="mt-icon-btn" (click)="delDownload('queue', download.key)" title="Cancel">
+                <fa-icon [icon]="faTrashAlt" />
+              </button>
+              <a [href]="download.value.url" target="_blank" class="mt-icon-btn" title="Open URL">
+                <fa-icon [icon]="faExternalLinkAlt" />
+              </a>
+            </div>
+          </div>
+          <div class="mt-card-progress">
+            <div class="mt-card-progress-fill"
+              [class.mt-progress-preparing]="download.value.status === 'preparing'"
+              [style.width.%]="download.value.status === 'preparing' ? 100 : download.value.percent">
+            </div>
+          </div>
+          <div class="mt-card-meta">
+            <span>{{ download.value.speed | speed }}</span>
+            <span>{{ download.value.eta | eta }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Completed Section — always in DOM for viewChild.required -->
+  <section class="mt-section" [class.mt-section-empty]="!hasDoneDownloads">
+    <div class="mt-section-header">
+      <h2>Completed</h2>
+      <div class="mt-section-actions">
+        <button type="button" class="mt-ghost-btn" disabled #doneDelSelected (click)="delSelectedDownloads('done')">
+          <fa-icon [icon]="faTrashAlt" class="me-1" /> Clear selected
+        </button>
+        <button type="button" class="mt-ghost-btn" disabled #doneClearCompleted (click)="clearCompletedDownloads()">
+          <fa-icon [icon]="faCheckCircle" class="me-1" /> Clear completed
+        </button>
+        <button type="button" class="mt-ghost-btn" disabled #doneClearFailed (click)="clearFailedDownloads()">
+          <fa-icon [icon]="faTimesCircle" class="me-1" /> Clear failed
+        </button>
+        <button type="button" class="mt-ghost-btn" disabled #doneRetryFailed (click)="retryFailedDownloads()">
+          <fa-icon [icon]="faRedoAlt" class="me-1" /> Retry failed
+        </button>
+        <button type="button" class="mt-ghost-btn" disabled #doneDownloadSelected (click)="downloadSelectedFiles()">
+          <fa-icon [icon]="faDownload" class="me-1" /> Download selected
+        </button>
+      </div>
+    </div>
+    <div class="mt-section-check">
+      <app-master-checkbox #doneMasterCheckboxRef [id]="'done'" [list]="downloads.done" (changed)="doneSelectionChanged($event)" />
+      <span class="mt-check-label">Select all</span>
+    </div>
+    <div class="mt-cards">
+      @for (download of downloads.done | keyvalue: asIsOrder; track download.value.id) {
+        <div class="mt-card" [class.mt-card-deleting]="download.value.deleting"
+          [class.mt-card-success]="download.value.status === 'finished'"
+          [class.mt-card-error]="download.value.status === 'error'">
+          <div class="mt-card-top">
+            <app-slave-checkbox [id]="download.key" [master]="doneMasterCheckboxRef" [checkable]="download.value" />
+            <div class="mt-card-status">
+              @if (download.value.status === 'finished') {
+                <fa-icon [icon]="faCheckCircle" class="mt-status-success" />
+              }
+              @if (download.value.status === 'error') {
+                <fa-icon [icon]="faTimesCircle" class="mt-status-error" />
+              }
+            </div>
+            <span class="mt-card-title" [ngbTooltip]="buildResultItemTooltip(download.value)">
+              @if (!!download.value.filename) {
+                <a [href]="buildDownloadLink(download.value)" target="_blank" class="mt-card-link">{{ download.value.title }}</a>
               } @else {
-                {{download.value.title}}
+                {{ download.value.title }}
                 @if (download.value.msg) {
-                  <span><br>{{download.value.msg}}</span>
+                  <span class="mt-card-msg">{{ download.value.msg }}</span>
                 }
                 @if (download.value.error) {
-                  <span><br>Error: {{download.value.error}}</span>
+                  <span class="mt-card-error-msg">Error: {{ download.value.error }}</span>
                 }
-              }</span>
-            </td>
-            <td>
-              @if (download.value.size) {
-                <span>{{ download.value.size | fileSize }}</span>
               }
-            </td>
-            <td>
-              <div class="d-flex">
-                @if (download.value.status === 'error') {
-                  <button type="button" class="btn btn-link" (click)="retryDownload(download.key, download.value)"><fa-icon [icon]="faRedoAlt" /></button>
-                }
-                @if (download.value.filename) {
-                  <a href="{{buildDownloadLink(download.value)}}" download class="btn btn-link"><fa-icon [icon]="faDownload" /></a>
-                }
-                <a href="{{download.value.url}}" target="_blank" class="btn btn-link"><fa-icon [icon]="faExternalLinkAlt" /></a>
-                <button type="button" class="btn btn-link" (click)="delDownload('done', download.key)"><fa-icon [icon]="faTrashAlt" /></button>
-              </div>
-            </td>
-          </tr>
-        @if (download.value.chapter_files && download.value.chapter_files.length > 0) {
-          @for (chapterFile of download.value.chapter_files; track chapterFile.filename) {
-            <tr [class.disabled]='download.value.deleting'>
-              <td></td>
-              <td>
-                <div style="padding-left: 2rem;">
-              <fa-icon [icon]="faCheckCircle" class="text-success me-2" />
-              <a href="{{buildChapterDownloadLink(download.value, chapterFile.filename)}}" target="_blank">{{
-                getChapterFileName(chapterFile.filename) }}</a>
-            </div>
-          </td>
-          <td>
-            @if (chapterFile.size) {
-            <span>{{ chapterFile.size | fileSize }}</span>
+            </span>
+            @if (download.value.size) {
+              <span class="mt-card-size">{{ download.value.size | fileSize }}</span>
             }
-          </td>
-          <td>
-            <div class="d-flex">
-              <a href="{{buildChapterDownloadLink(download.value, chapterFile.filename)}}" download
-                class="btn btn-link"><fa-icon [icon]="faDownload" /></a>
+            <div class="mt-card-actions">
+              @if (download.value.status === 'error') {
+                <button type="button" class="mt-icon-btn" (click)="retryDownload(download.key, download.value)" title="Retry">
+                  <fa-icon [icon]="faRedoAlt" />
+                </button>
+              }
+              @if (download.value.filename) {
+                <a [href]="buildDownloadLink(download.value)" download class="mt-icon-btn" title="Download file">
+                  <fa-icon [icon]="faDownload" />
+                </a>
+              }
+              <a [href]="download.value.url" target="_blank" class="mt-icon-btn" title="Open URL">
+                <fa-icon [icon]="faExternalLinkAlt" />
+              </a>
+              <button type="button" class="mt-icon-btn" (click)="delDownload('done', download.key)" title="Remove">
+                <fa-icon [icon]="faTrashAlt" />
+              </button>
             </div>
-          </td>
-        </tr>
-        }
-      }
-    }
-      </tbody>
-    </table>
-  </div>
-</main><!-- /.container -->
-
-<footer class="footer navbar-dark bg-dark py-3 mt-5">
-  <div class="container text-center">
-    @if (ytDlpVersion && metubeVersion) {
-      <div class="footer-content">
-        <div class="version-item">
-          <span class="version-label">yt-dlp</span>
-          <span class="version-value">{{ytDlpVersion}}</span>
-        </div>
-        <div class="version-separator"></div>
-        <div class="version-item">
-          <span class="version-label">MeTube</span>
-          <span class="version-value">{{metubeVersion}}</span>
-        </div>
-        <div class="version-separator"></div>
-        @if (ytDlpOptionsUpdateTime) {
-          <div class="version-item">
-            <span class="version-label">yt-dlp-options</span>
-            <span class="version-value">{{ytDlpOptionsUpdateTime}}</span>
           </div>
-        }
-        @if (ytDlpOptionsUpdateTime) {
-          <div class="version-separator"></div>
-        }
-        <a href="https://github.com/alexta69/metube" target="_blank" class="github-link">
-          <fa-icon [icon]="faGithub" />
-          <span>GitHub</span>
-        </a>
-      </div>
+          <!-- Chapter files -->
+          @if (download.value.chapter_files && download.value.chapter_files.length > 0) {
+            <div class="mt-card-chapters">
+              @for (chapterFile of download.value.chapter_files; track chapterFile.filename) {
+                <div class="mt-chapter-item">
+                  <fa-icon [icon]="faCheckCircle" class="mt-status-success me-2" />
+                  <a [href]="buildChapterDownloadLink(download.value, chapterFile.filename)" target="_blank" class="mt-card-link">
+                    {{ getChapterFileName(chapterFile.filename) }}
+                  </a>
+                  @if (chapterFile.size) {
+                    <span class="mt-card-size ms-auto">{{ chapterFile.size | fileSize }}</span>
+                  }
+                  <a [href]="buildChapterDownloadLink(download.value, chapterFile.filename)" download class="mt-icon-btn ms-2" title="Download chapter">
+                    <fa-icon [icon]="faDownload" />
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</main>
+
+<footer class="mt-footer">
+  @if (ytDlpVersion && metubeVersion) {
+    <span>yt-dlp {{ytDlpVersion}}</span>
+    <span class="mt-footer-sep">&middot;</span>
+    <span>Supremium {{metubeVersion}}</span>
+    @if (ytDlpOptionsUpdateTime) {
+      <span class="mt-footer-sep">&middot;</span>
+      <span>options {{ytDlpOptionsUpdateTime}}</span>
     }
-  </div>
+    <span class="mt-footer-sep">&middot;</span>
+    <a href="https://github.com/alexta69/metube" target="_blank" class="mt-footer-link">
+      <fa-icon [icon]="faGithub" /> GitHub
+    </a>
+  }
 </footer>

@@ -1,7 +1,46 @@
-/* You can add global styles to this file, and also import other style files */
+/* MeTube Design Tokens & Global Styles */
 
-.navbar
-    background-color: var(--bs-dark) !important
+\:root
+  // Colors — Light theme
+  --mt-bg: #ffffff
+  --mt-surface: #f5f5f7
+  --mt-text: #1d1d1f
+  --mt-text-secondary: #86868b
+  --mt-border: rgba(0, 0, 0, 0.08)
+  --mt-accent: #0071e3
+  --mt-accent-hover: #0077ed
+  --mt-success: #34c759
+  --mt-error: #ff3b30
+  --mt-shadow: rgba(0, 0, 0, 0.04)
+  --mt-shadow-hover: rgba(0, 0, 0, 0.08)
+  --mt-input-bg: #ffffff
+  --mt-header-bg: rgba(255, 255, 255, 0.72)
 
-    [data-bs-theme="dark"] &
-        background-color: var(--bs-dark-bg-subtle) !important
+[data-bs-theme="dark"]
+  --mt-bg: #000000
+  --mt-surface: #1c1c1e
+  --mt-text: #f5f5f7
+  --mt-text-secondary: #98989d
+  --mt-border: rgba(255, 255, 255, 0.1)
+  --mt-accent: #0a84ff
+  --mt-accent-hover: #409cff
+  --mt-success: #30d158
+  --mt-error: #ff453a
+  --mt-shadow: rgba(0, 0, 0, 0.2)
+  --mt-shadow-hover: rgba(0, 0, 0, 0.3)
+  --mt-input-bg: #1c1c1e
+  --mt-header-bg: rgba(0, 0, 0, 0.72)
+
+// Global resets & base
+*
+  box-sizing: border-box
+
+body
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+  background-color: var(--mt-bg)
+  color: var(--mt-text)
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  transition: background-color 0.3s ease, color 0.3s ease
+  margin: 0
+  padding: 0

@@ -586,6 +586,18 @@ export class App implements AfterViewInit, OnInit {
     this.isAdvancedOpen = !this.isAdvancedOpen;
   }
 
+  get hasDownloads(): boolean {
+    return this.downloads.queue.size > 0 || this.downloads.done.size > 0;
+  }
+
+  get hasQueueDownloads(): boolean {
+    return this.downloads.queue.size > 0;
+  }
+
+  get hasDoneDownloads(): boolean {
+    return this.downloads.done.size > 0;
+  }
+
   private updateMetrics() {
     this.activeDownloads = Array.from(this.downloads.queue.values()).filter(d => d.status === 'downloading' || d.status === 'preparing').length;
     this.queuedDownloads = Array.from(this.downloads.queue.values()).filter(d => d.status === 'pending').length;

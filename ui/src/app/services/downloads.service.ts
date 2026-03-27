@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { of, Subject } from 'rxjs';
+import { of, ReplaySubject, Subject } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MeTubeSocket } from './metube-socket.service';
 import { Download, Status, State } from '../interfaces';
@@ -16,7 +16,7 @@ export class DownloadsService {
   done = new Map<string, Download>();
   queueChanged = new Subject();
   doneChanged = new Subject();
-  customDirsChanged = new Subject();
+  customDirsChanged = new ReplaySubject(1);
   ytdlOptionsChanged = new Subject();
   configurationChanged = new Subject();
   updated = new Subject();
