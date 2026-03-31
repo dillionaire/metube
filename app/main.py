@@ -443,7 +443,7 @@ async def history(request):
 async def connect(sid, environ):
     user = get_user_from_environ(environ)
     user_sessions[sid] = user
-    sio.enter_room(sid, f"user:{user}")
+    await sio.enter_room(sid, f"user:{user}")
     log.info(f"Client connected: {sid} (user: {user})")
 
     dqueue = await queue_manager.get_queue(user)
